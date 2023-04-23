@@ -27,22 +27,38 @@ public class CurrencyDAOImpl implements CurrencyDAO {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
         while (resultSet.next()) {
-            String code = resultSet.getString(2);
-            String full_name = resultSet.getString(3);
-            String sign = resultSet.getString(4);
-            Currency currency = new Currency(code, full_name, sign);
-            currencies.add(currency);
+            currencies.add(createCurrency(resultSet));
         }
         return currencies;
     }
 
     @Override
-    public Currency getCurrencyById(int id) throws SQLException {
-        return null;
+    public Currency getCurrencyByCode(String code) throws SQLException {
+        String sql = "SELECT * FROM currencies WHERE code=?";//TODO: sql injection protection
+
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, code);
+        ResultSet resultSet = statement.executeQuery();
+        return createCurrency(resultSet);
     }
 
     @Override
     public void addCurrency(Currency currency) throws SQLException {
+        String sql = "INSERT INTO currencies (code, full_name, sign)" +
+                "VALUES (?, ?, ?)";
 
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, currency.getCode());
+        statement.setString(2, currency.getFullName());
+        statement.setString(3, currency.getSign());
+        statement.executeUpdate();
+        connection.commit();
+    }
+
+    private Currency createCurrency(ResultSet resultSet) throws SQLException {
+        String code = resultSet.getString(2);
+        String full_name = resultSet.getString(3);
+        String sign = resultSet.getString(4);
+        return new Currency(code, full_name, sign);
     }
 }

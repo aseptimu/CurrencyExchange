@@ -33,6 +33,16 @@ public class CurrenciesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        String fullName = req.getParameter("name"); //TODO: protect all fields. name and code should be not null and prevent SQL injections
+        String code = req.getParameter("code");
+        System.out.println(code.length());
+        String sign = req.getParameter("sign");
+        Currency currency = new Currency(code, fullName, sign);
+        CurrencyDAOImpl dao = new CurrencyDAOImpl();
+        try {
+            dao.addCurrency(currency);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
