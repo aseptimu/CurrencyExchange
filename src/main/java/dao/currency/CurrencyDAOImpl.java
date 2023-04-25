@@ -1,4 +1,4 @@
-package dao;
+package dao.currency;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class CurrencyDAOImpl implements CurrencyDAO {
     }
 
     @Override
-    public void addCurrency(Currency currency) throws SQLException {
+    public Currency addCurrency(Currency currency) throws SQLException {
         String sql = "INSERT INTO currencies (code, full_name, sign)" +
                 "VALUES (?, ?, ?)";
 
@@ -51,14 +51,15 @@ public class CurrencyDAOImpl implements CurrencyDAO {
         statement.setString(1, currency.getCode());
         statement.setString(2, currency.getFullName());
         statement.setString(3, currency.getSign());
-        statement.executeUpdate();
-        connection.commit();
+        statement.executeUpdate();//TODO: падает после другого POST запроса
+        return getCurrencyByCode(currency.getCode());
     }
 
     private Currency createCurrency(ResultSet resultSet) throws SQLException {
+        int id = resultSet.getInt(1);
         String code = resultSet.getString(2);
         String full_name = resultSet.getString(3);
         String sign = resultSet.getString(4);
-        return new Currency(code, full_name, sign);
+        return new Currency(id, code, full_name, sign);
     }
 }

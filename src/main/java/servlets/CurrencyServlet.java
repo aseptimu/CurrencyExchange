@@ -1,7 +1,7 @@
 package servlets;
 
-import dao.Currency;
-import dao.CurrencyDAOImpl;
+import dao.currency.Currency;
+import dao.currency.CurrencyDAOImpl;
 
 import javax.servlet.*;
 import javax.servlet.http.*;

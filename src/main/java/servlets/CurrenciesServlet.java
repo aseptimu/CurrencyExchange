@@ -1,7 +1,8 @@
 package servlets;
 
-import dao.Currency;
-import dao.CurrencyDAOImpl;
+import dao.currency.Currency;
+import dao.currency.CurrencyDAOImpl;
+import service.CurrencyService;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -15,32 +16,26 @@ import java.util.List;
 public class CurrenciesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/plain; charset=utf-8");
+        response.setContentType("application/json; charset=utf-8");
         PrintWriter pw = response.getWriter();
 
-        CurrencyDAOImpl dao = new CurrencyDAOImpl();
-        try {
-            List<Currency> currencies = dao.getAllCurrencies();
-            for (Currency currency : currencies) {
-                pw.println(currency.getCode() + " " +
-                        currency.getFullName() + " " + currency.getSign());
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
+        CurrencyService service = new CurrencyService();
+        pw.println(service.getAllCurrencies());
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String fullName = req.getParameter("name"); //TODO: protect all fields. name and code should be not null and prevent SQL injections
         String code = req.getParameter("code");
-        System.out.println(code.length());
+
         String sign = req.getParameter("sign");
         Currency currency = new Currency(code, fullName, sign);
         CurrencyDAOImpl dao = new CurrencyDAOImpl();
         try {
-            dao.addCurrency(currency);
+            Currency currency1 = dao.addCurrency(currency);
+            PrintWriter writer = resp.getWriter();
+            writer.println(currency1.getId() + " " + currency.getCode() + " " + currency.getFullName() + " " + currency.getSign());
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
