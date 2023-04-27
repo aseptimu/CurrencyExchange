@@ -1,26 +1,15 @@
 package dao.exchange;
 
+import dao.DBConnection;
 import dao.currency.Currency;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class ExchangeRateDAOImpl implements ExchangeRateDAO {
+public class ExchangeRateDAOImpl extends DBConnection implements ExchangeRateDAO {
 
-    private Connection connection;//TODO: duplicated code for connection
-    private static final String DB_URL = "jdbc:sqlite::resource:currencies.db";
-
-    public ExchangeRateDAOImpl() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(DB_URL);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public List<ExchangeRate> getAllExchangeRates() throws SQLException {
@@ -30,12 +19,13 @@ public class ExchangeRateDAOImpl implements ExchangeRateDAO {
                 FROM exchange_rates
                 JOIN currencies base on exchange_rates.base_currency_id = base.id
                 JOIN currencies target on exchange_rates.target_currency_id = target.id""";
-        Statement statement = connection.createStatement();
-        ResultSet result = statement.executeQuery(sql);
-        while (result.next()) {
-            rates.add(getExchangeFromQuery(result));
+        try (Statement statement = getConnection().createStatement()) {
+            ResultSet result = statement.executeQuery(sql);
+            while (result.next()) {
+                rates.add(getExchangeFromQuery(result));
+            }
+            return rates;
         }
-        return rates;
     }
 
     private ExchangeRate getExchangeFromQuery(ResultSet result) throws SQLException {
@@ -59,34 +49,38 @@ public class ExchangeRateDAOImpl implements ExchangeRateDAO {
     }
 
     @Override
-    public ExchangeRate getExchangeRateByCodes(String baseCode, String targetCode) throws SQLException {
+    public Optional<ExchangeRate> getExchangeRateByCodes(String baseCode, String targetCode) throws SQLException {
         String sql = """
                 SELECT exchange_rates.id, base.*, target.*, exchange_rates.rate
                 FROM exchange_rates
                 JOIN currencies base on exchange_rates.base_currency_id = base.id
                 JOIN currencies target on exchange_rates.target_currency_id = target.id
                 WHERE base.code = ? AND target.code = ?""";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1, baseCode);
-        statement.setString(2, targetCode);
-        ResultSet result = statement.executeQuery();
-        return getExchangeFromQuery(result);
+        try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
+            statement.setString(1, baseCode);
+            statement.setString(2, targetCode);
+            ResultSet result = statement.executeQuery();
+            if (result.next()) {
+                return Optional.of(getExchangeFromQuery(result));
+            }
+            return Optional.empty();
+        }
     }
 
     @Override
-    public ExchangeRate addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, double rate) throws SQLException {
+    public Optional<ExchangeRate> addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, double rate) throws SQLException {
         String sql = """
                 INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate)
                 VALUES ((SELECT id FROM currencies WHERE code=?),
                         (SELECT id FROM currencies WHERE code=?),
                         ?)""";
-        PreparedStatement statement = connection.prepareStatement(sql);
+        PreparedStatement statement = getConnection().prepareStatement(sql);
 
         statement.setString(1, baseCurrencyCode);
         statement.setString(2, targetCurrencyCode);
         statement.setDouble(3, rate);
         statement.executeUpdate(); //TODO: падает после другого POST запроса
-        return getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
+        return  getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
     }
 
     @Override
@@ -97,11 +91,11 @@ public class ExchangeRateDAOImpl implements ExchangeRateDAO {
                 AND (SELECT id FROM currencies WHERE code=?)=target_currency_id
                         """;
 
-        PreparedStatement statement = connection.prepareStatement(sql);
+        PreparedStatement statement = getConnection().prepareStatement(sql);
         statement.setDouble(1, rate);
         statement.setString(2, baseCurrencyCode);
         statement.setString(3, targetCurrencyCode);
         statement.executeUpdate();
-        return getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
+        return null;// getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
     }
 }
