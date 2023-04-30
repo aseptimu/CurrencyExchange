@@ -14,8 +14,9 @@ public class CurrencyDAOImpl extends DBConnection implements CurrencyDAO {
         List<Currency> currencies = new ArrayList<>();
 
         String sql = "SELECT * FROM currencies";
-        try (Statement statement = getConnection().createStatement()) {
-            ResultSet resultSet = statement.executeQuery(sql);
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
                 currencies.add(createCurrency(resultSet));
             }
@@ -27,22 +28,25 @@ public class CurrencyDAOImpl extends DBConnection implements CurrencyDAO {
     public Optional<Currency> getCurrencyByCode(String code) throws SQLException {
         String sql = "SELECT * FROM currencies WHERE code=?";
 
-        try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, code);
             ResultSet resultSet = statement.executeQuery();
+            Currency currency = null;
             if (resultSet.next()) {
-                return Optional.of(createCurrency(resultSet));
+                currency = createCurrency(resultSet);
             }
+            resultSet.close();
+            return Optional.ofNullable(currency);
         }
-        return Optional.empty();
     }
 
     @Override
     public Optional<Currency> addCurrency(Currency currency) throws SQLException {
         String sql = "INSERT INTO currencies (code, full_name, sign)" +
                 "VALUES (?, ?, ?)";
-        try (Connection connection = getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(sql);
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, currency.getCode());
             statement.setString(2, currency.getFullName());
             statement.setString(3, currency.getSign());

@@ -1,7 +1,8 @@
 package utils;
 
-import java.io.PrintWriter;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Validator {
     public static Optional<String> validateCurrencyCode(String currency) {
@@ -26,7 +27,23 @@ public class Validator {
         return Optional.of(validPair);
     }
 
-    public static Optional<Double> validateRate(String rate) {
+    public static Optional<Double> validateDouble(String rate) {
+        try {
+            Double num = Double.parseDouble(rate);
+            return Optional.of(num);
+        } catch (NumberFormatException | NullPointerException exception) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<Double> validatePATCHRate(String requestBody) {
+        Pattern pattern = Pattern.compile("rate=([+-]?\\d+(\\.\\d+)?)(?=\\D|$)");
+        Matcher matcher = pattern.matcher(requestBody);
+        if (matcher.find()) {
+            String validRate = matcher.group(1);
+            double rate = Double.parseDouble(validRate);
+            return Optional.of(rate);
+        }
         return Optional.empty();
     }
 }

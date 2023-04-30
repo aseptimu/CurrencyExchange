@@ -1,35 +1,20 @@
 package utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ErrorHandler {
-    private boolean error;
-    private int errorCode;
-    private String errorMessage;
-    private ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public String getError() throws JsonProcessingException {
-        ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("message", errorMessage);
-        return mapper.writeValueAsString(objectNode);
-    }
-
-    public void setError(int errorCode, String message) {
-        this.error = true;
-        this.errorCode = errorCode;
-        this.errorMessage = message;
-    }
-
-    public boolean isError() {
-        return error;
-    }
-
-    public int getErrorCode() {
-        return errorCode;
+    public static void sendError(int code, String message, HttpServletResponse response) {
+        try {
+            response.setStatus(code);
+            response.getWriter().println();
+            response.getWriter().println(MAPPER.createObjectNode().put("message", message));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -19,8 +19,9 @@ public class ExchangeRateDAOImpl extends DBConnection implements ExchangeRateDAO
                 FROM exchange_rates
                 JOIN currencies base on exchange_rates.base_currency_id = base.id
                 JOIN currencies target on exchange_rates.target_currency_id = target.id""";
-        try (Statement statement = getConnection().createStatement()) {
-            ResultSet result = statement.executeQuery(sql);
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet result = statement.executeQuery(sql)) {
             while (result.next()) {
                 rates.add(getExchangeFromQuery(result));
             }
@@ -56,14 +57,17 @@ public class ExchangeRateDAOImpl extends DBConnection implements ExchangeRateDAO
                 JOIN currencies base on exchange_rates.base_currency_id = base.id
                 JOIN currencies target on exchange_rates.target_currency_id = target.id
                 WHERE base.code = ? AND target.code = ?""";
-        try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, baseCode);
             statement.setString(2, targetCode);
             ResultSet result = statement.executeQuery();
+            ExchangeRate exchange = null;
             if (result.next()) {
-                return Optional.of(getExchangeFromQuery(result));
+                exchange = getExchangeFromQuery(result);
             }
-            return Optional.empty();
+            result.close();
+            return Optional.ofNullable(exchange);
         }
     }
 
@@ -74,28 +78,31 @@ public class ExchangeRateDAOImpl extends DBConnection implements ExchangeRateDAO
                 VALUES ((SELECT id FROM currencies WHERE code=?),
                         (SELECT id FROM currencies WHERE code=?),
                         ?)""";
-        PreparedStatement statement = getConnection().prepareStatement(sql);
-
-        statement.setString(1, baseCurrencyCode);
-        statement.setString(2, targetCurrencyCode);
-        statement.setDouble(3, rate);
-        statement.executeUpdate(); //TODO: падает после другого POST запроса
-        return  getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, baseCurrencyCode);
+            statement.setString(2, targetCurrencyCode);
+            statement.setDouble(3, rate);
+            statement.executeUpdate();
+            return getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
+        }
     }
 
     @Override
-    public ExchangeRate updateExchangeRate(String baseCurrencyCode, String targetCurrencyCode, double rate) throws SQLException {
+    public Optional<ExchangeRate> updateExchangeRate(String baseCurrencyCode, String targetCurrencyCode, double rate) throws SQLException {
         String sql = """
                 UPDATE exchange_rates SET rate = ?
                 WHERE (SELECT id FROM currencies WHERE code=?)=base_currency_id
                 AND (SELECT id FROM currencies WHERE code=?)=target_currency_id
                         """;
 
-        PreparedStatement statement = getConnection().prepareStatement(sql);
-        statement.setDouble(1, rate);
-        statement.setString(2, baseCurrencyCode);
-        statement.setString(3, targetCurrencyCode);
-        statement.executeUpdate();
-        return null;// getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setDouble(1, rate);
+            statement.setString(2, baseCurrencyCode);
+            statement.setString(3, targetCurrencyCode);
+            statement.executeUpdate();
+        }
+        return getExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode);
     }
 }

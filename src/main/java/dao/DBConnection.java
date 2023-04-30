@@ -22,7 +22,7 @@ public abstract class DBConnection {
         }
     }
 
-    public static Connection getConnection() throws SQLException {
+    protected static Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 }
