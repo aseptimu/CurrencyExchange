@@ -37,7 +37,7 @@ public class ExchangeServlet extends HttpServlet {
             ExchangeService service = new ExchangeService(mapper);
             Optional<ObjectNode> exchange = service.exchange(from.get(), to.get(), amount.get());
             if (exchange.isPresent()) {
-                mapper.writeValue(response.getWriter(), exchange);
+                mapper.writeValue(response.getWriter(), exchange.get());
             } else {
                 ErrorHandler.sendError(HttpServletResponse.SC_NOT_FOUND, "Exchange rate not found", response);
             }
