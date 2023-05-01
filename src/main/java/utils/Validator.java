@@ -37,6 +37,9 @@ public class Validator {
     }
 
     public static Optional<Double> validatePATCHRate(String requestBody) {
+        if (requestBody == null) {
+            return Optional.empty();
+        }
         Pattern pattern = Pattern.compile("rate=([+-]?\\d+(\\.\\d+)?)(?=\\D|$)");
         Matcher matcher = pattern.matcher(requestBody);
         if (matcher.find()) {

@@ -1,0 +1,285 @@
+{
+	"info": {
+		"_postman_id": "6ef41f31-6c7b-4535-8d20-b552bdb7c853",
+		"name": "CurrencyExchange",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22808995"
+	},
+	"item": [
+		{
+			"name": "GET currencies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/currencies",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST currencies",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "Tenge",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "KZT",
+							"type": "text"
+						},
+						{
+							"key": "sign",
+							"value": "₸",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8081/currencies",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET currency",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/currency/EUR",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"currency",
+						"EUR"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchangeRates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/exchangeRates",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchangeRates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchangeRate",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/exchangeRate/USDGBP",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchangeRate",
+						"USDGBP"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST exchangeRates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "baseCurrencyCode",
+							"value": "AUD",
+							"type": "text"
+						},
+						{
+							"key": "targetCurrencyCode",
+							"value": "EUR",
+							"type": "text"
+						},
+						{
+							"key": "rate",
+							"value": "0.61",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8081/exchangeRates",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchangeRates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH exchangeRate",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "rate",
+							"value": "0.7",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8081/exchangeRate/USDGBP",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchangeRate",
+						"USDGBP"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchange USD-A USD-B",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/exchange?from=EUR&to=GBP&amount=10",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchange"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "EUR"
+						},
+						{
+							"key": "to",
+							"value": "GBP"
+						},
+						{
+							"key": "amount",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchange BA",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/exchange?from=EUR&to=USD&amount=10",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchange"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "EUR"
+						},
+						{
+							"key": "to",
+							"value": "USD"
+						},
+						{
+							"key": "amount",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchange AB",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/exchange?from=USD&to=EUR&amount=10",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"exchange"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "USD"
+						},
+						{
+							"key": "to",
+							"value": "EUR"
+						},
+						{
+							"key": "amount",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

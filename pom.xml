@@ -24,6 +24,7 @@
                 <version>3.3.2</version>
             </plugin>
         </plugins>
+        <finalName>currency-exchange</finalName>
     </build>
 
 
